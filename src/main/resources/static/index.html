@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Danh sách nhóm</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      min-width: 120px;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    button.edit {
+      background: #3498db;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    button.edit:hover {
+      background: #2980b9;
+    }
+
+    button.delete {
+      background: #e74c3c;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    button.delete:hover {
+      background: #c0392b;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #f9f9f9;
+      margin-bottom: 10px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #eee;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    li:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    li span {
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📋 Danh sách nhóm</h2>
+    <div class="form-group">
+      <input id="name" placeholder="Tên thành viên" />
+      <input id="role" placeholder="Vai trò" />
+      <button id="addBtn">Thêm</button>
+    </div>
+    <ul id="memberList">
+      <li class="loading">Đang tải dữ liệu...</li>
+    </ul>
+  </div>
+
+  <script>
+    // Khởi tạo ID tự tăng
+    let nextId = parseInt(localStorage.getItem('nextId')) || 1;
+
+    // Lưu dữ liệu
+    function saveMembers(members) {
+      localStorage.setItem('members', JSON.stringify(members));
+    }
+
+    // Lấy dữ liệu
+    function loadMembers() {
+      const list = document.getElementById('memberList');
+      list.innerHTML = '<li class="loading">Đang tải...</li>';
+
+      setTimeout(() => { // giả lập độ trễ mạng
+        const members = JSON.parse(localStorage.getItem('members')) || [];
+        list.innerHTML = '';
+
+        if (members.length === 0) {
+          const li = document.createElement('li');
+          li.textContent = "Chưa có thành viên nào.";
+          li.style.color = "#7f8c8d";
+          li.style.textAlign = "center";
+          list.appendChild(li);
+          return;
+        }
+
+        members.forEach(m => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span>${m.name} - <strong>${m.role}</strong></span>
+            <div class="actions">
+              <button class="edit" data-id="${m.id}">Sửa</button>
+              <button class="delete" data-id="${m.id}">Xóa</button>
+            </div>
+          `;
+          list.appendChild(li);
+        });
+
+        // Gắn sự kiện xóa và sửa
+        attachEventListeners();
+      }, 300);
+    }
+
+    // Thêm thành viên
+    function addMember() {
+      const nameInput = document.getElementById('name');
+      const roleInput = document.getElementById('role');
+      const name = nameInput.value.trim();
+      const role = roleInput.value.trim();
+
+      if (!name || !role) {
+        alert("Vui lòng nhập tên và vai trò!");
+        return;
+      }
+
+      const members = JSON.parse(localStorage.getItem('members')) || [];
+      members.push({ id: nextId++, name, role });
+      saveMembers(members);
+      localStorage.setItem('nextId', nextId);
+
+      nameInput.value = '';
+      roleInput.value = '';
+      loadMembers();
+    }
+
+    // Xóa thành viên
+    function deleteMember(id) {
+      if (confirm("Bạn có chắc muốn xóa thành viên này?")) {
+        const members = JSON.parse(localStorage.getItem('members')) || [];
+        const filtered = members.filter(m => m.id != id);
+        saveMembers(filtered);
+        loadMembers();
+      }
+    }
+
+    // Sửa thành viên
+    function editMember(id) {
+      const members = JSON.parse(localStorage.getItem('members')) || [];
+      const member = members.find(m => m.id == id);
+      if (!member) return;
+
+      const newName = prompt("Sửa tên:", member.name);
+      if (newName === null) return; // hủy
+
+      const newRole = prompt("Sửa vai trò:", member.role);
+      if (newRole === null) return;
+
+      member.name = newName.trim();
+      member.role = newRole.trim();
+      saveMembers(members);
+      loadMembers();
+    }
+
+    // Gắn sự kiện cho các nút
+    function attachEventListeners() {
+      document.querySelectorAll('.delete').forEach(btn => {
+        btn.onclick = (e) => {
+          const id = e.target.dataset.id;
+          deleteMember(id);
+        };
+      });
+
+      document.querySelectorAll('.edit').forEach(btn => {
+        btn.onclick = (e) => {
+          const id = e.target.dataset.id;
+          editMember(id);
+        };
+      });
+    }
+
+    // Khởi động
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMembers();
+
+      document.getElementById('addBtn').onclick = addMember;
+
+      // Hỗ trợ Enter
+      document.getElementById('name').onkeypress = (e) => {
+        if (e.key === 'Enter') document.getElementById('role').focus();
+      };
+      document.getElementById('role').onkeypress = (e) => {
+        if (e.key === 'Enter') addMember();
+      };
+    });
+  </script>
+</body>
+</html>

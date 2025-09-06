@@ -9,7 +9,8 @@ public class Company {
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;  // ✅ SỬA: đổi int thành Integer
+    
     @Column
     private String companyName;
 
@@ -25,16 +26,20 @@ public class Company {
         this.users = users;
     }
 
-    public int getId() {
+    // ✅ SỬA: đổi return type thành Integer
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    // ✅ SỬA: đổi parameter type thành Integer
+    public void setId(Integer id) {
         this.id = id;
     }
+    
     public String getCompanyName() {
         return companyName;
     }
+    
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }

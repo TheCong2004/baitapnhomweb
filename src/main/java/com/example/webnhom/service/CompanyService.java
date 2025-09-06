@@ -19,50 +19,45 @@ public class CompanyService {
     @Autowired
     private UserDemoRepository userDemoRepository;
 
-    // Tạo công ty mới
-    public Company createCompany(Company company) {
-        return companyRepository.save(company);
-    }
-
-    // Lấy danh sách tất cả công ty
     public List<Company> getAllCompanies() {
         return companyRepository.findAll();
     }
 
-    // Lấy thông tin công ty theo ID
+    public Company createCompany(Company company) {
+        return companyRepository.save(company);
+    }
+
     public Optional<Company> getCompanyById(Integer id) {
         return companyRepository.findById(id);
     }
 
-    // Cập nhật thông tin công ty
     public Company updateCompany(Integer id, Company companyDetails) {
-        Optional<Company> company = companyRepository.findById(id);
-        if (company.isPresent()) {
-            Company existingCompany = company.get();
-            existingCompany.setCompanyName(companyDetails.getCompanyName());
-            existingCompany.setUsers(companyDetails.getUsers());
-            return companyRepository.save(existingCompany);
-        }
-        return null;
+        return companyRepository.findById(id)
+                .map(company -> {
+                    company.setCompanyName(companyDetails.getCompanyName());
+                    return companyRepository.save(company);
+                })
+                .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
     }
 
-    // Xóa công ty
     public void deleteCompany(Integer id) {
         companyRepository.deleteById(id);
     }
 
-    // Thêm người dùng vào công ty
-    public Company addUserToCompany(Integer companyId, Long userId) {
-        Optional<Company> company = companyRepository.findById(companyId);
-        Optional<UserDemo> user = userDemoRepository.findById(userId);
-        if (company.isPresent() && user.isPresent()) {
-            Company existingCompany = company.get();
-            UserDemo existingUser = user.get();
-            existingUser.setCompany(existingCompany);
-            existingCompany.getUsers().add(existingUser);
-            userDemoRepository.save(existingUser);
-            return companyRepository.save(existingCompany);
-        }
-        return null;
+    // ✅ QUAN TRỌNG: Method để thêm user vào company
+    public void addUserToCompany(Integer companyId, Long userId) {
+        // Tìm company
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("Company not found with id: " + companyId));
+
+        // Tìm user
+        UserDemo user = userDemoRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        // Set company cho user
+        user.setCompany(company);
+
+        // Lưu user (sẽ update foreign key company_id)
+        userDemoRepository.save(user);
     }
 }

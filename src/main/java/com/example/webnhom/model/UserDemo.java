@@ -9,7 +9,7 @@ import java.util.Set;
 public class UserDemo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE) // Khuyến nghị dùng SEQUENCE với Hibernate
+    @GeneratedValue(strategy = GenerationType.SEQUENCE) 
     private Long id;
 
     @Column(name = "first_name", nullable = false, length = 100)
@@ -24,12 +24,10 @@ public class UserDemo {
     @Column(nullable = false)
     private String password;
 
-    // Quan hệ N-1: nhiều UserDemo thuộc về một Company
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
-    // Quan hệ N-N: một UserDemo có nhiều Role
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_roles",
@@ -47,12 +45,16 @@ public class UserDemo {
         this.email     = email;
         this.password  = password;
     }
-    // UserDemo.java
+
+    // ✅ THÊM METHOD NÀY ĐỂ FIX LỖI
+    public String getUsername() {
+        return this.firstName + " " + this.lastName;
+    }
+
     public boolean hasRole(Long roleId) {
         if (roles == null) return false;
         return roles.stream().anyMatch(r -> r.getId().equals(roleId));
     }
-
 
     // ===== Getter & Setter =====
     public Long getId() { return id; }

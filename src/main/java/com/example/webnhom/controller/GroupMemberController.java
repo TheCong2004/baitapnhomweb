@@ -35,4 +35,15 @@ public class GroupMemberController {
     public void delete(@PathVariable Long id) {
         repo.deleteById(id);
     }
+
+    // Cập nhật thành viên
+    @PutMapping("/{id}")
+    public GroupMember update(@PathVariable Long id, @RequestBody GroupMember updatedMember) {
+        return repo.findById(id).map(member -> {
+            member.setName(updatedMember.getName());
+            member.setRole(updatedMember.getRole());
+            return repo.save(member);
+        }).orElseThrow(() -> new RuntimeException("Không tìm thấy thành viên với id = " + id));
+    }
+
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Chỉnh sửa Người dùng</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="container">
+  <h1>Chỉnh sửa Người dùng</h1>
+  <form th:action="@{/users/{id}(id=${user.id})}" method="post">
+    <div>
+      <label for="firstName">Họ:</label>
+      <input type="text" id="firstName" name="firstName" th:value="${user.firstName}" required>
+    </div>
+    <div>
+      <label for="lastName">Tên:</label>
+      <input type="text" id="lastName" name="lastName" th:value="${user.lastName}" required>
+    </div>
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" th:value="${user.email}" required>
+    </div>
+    <div>
+      <label for="password">Mật khẩu:</label>
+      <input type="password" id="password" name="password" th:value="${user.password}" required>
+    </div>
+    <div>
+      <label for="companyId">Công ty:</label>
+      <select id="companyId" name="company.id">
+        <option value="">Không thuộc công ty</option>
+        <option th:each="company : ${companies}" th:value="${company.id}" th:text="${company.companyName}" th:selected="${user.company != null and user.company.id == company.id}"></option>
+      </select>
+    </div>
+    <div>
+      <label for="roles">Vai trò:</label>
+      <select id="roles" name="roleIds" multiple>
+        <option value="" disabled>Chọn vai trò</option>
+        <option value="1" th:selected="${user.hasRole(1)}">Nhân viên</option>
+        <option value="2" th:selected="${user.hasRole(2)}">Trưởng phòng</option>
+        <option value="3" th:selected="${user.hasRole(3)}">Giám đốc</option>
+
+      </select>
+    </div>
+    <button type="submit" class="btn">Lưu</button>
+    <a href="/users" class="btn">Hủy</a>
+  </form>
+</div>
+</body>
+</html>

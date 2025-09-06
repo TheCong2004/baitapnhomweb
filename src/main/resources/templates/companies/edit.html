@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Sửa Công ty</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="container">
+  <h1>Sửa Công ty</h1>
+  <form th:action="@{/companies/{id}(id=${company.id})}" method="post">
+    <input type="hidden" name="_method" value="PUT">
+    <div>
+      <label for="companyName">Tên Công ty:</label>
+      <input type="text" id="companyName" name="companyName" th:value="${company.companyName}" required>
+    </div>
+    <button type="submit" class="btn">Lưu</button>
+    <a href="/companies" class="btn">Hủy</a>
+  </form>
+</div>
+</body>
+</html>

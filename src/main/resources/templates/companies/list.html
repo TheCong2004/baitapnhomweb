@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách Công ty</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Danh sách Công ty</h1>
+    <a href="/companies/create" class="btn">Tạo Công ty Mới</a>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên Công ty</th>
+            <th>Người dùng</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="company : ${companies}">
+            <td th:text="${company.id}"></td>
+            <td th:text="${company.companyName}"></td>
+            <td>
+                <ul>
+                    <li th:each="user : ${company.users}" th:text="${user.firstName + ' ' + user.lastName}"></li>
+                </ul>
+            </td>
+            <td>
+                <a th:href="@{/companies/edit/{id}(id=${company.id})}" class="btn">Sửa</a>
+                <a th:href="@{/companies/delete/{id}(id=${company.id})}" class="btn btn-danger">Xóa</a>
+                <a th:href="@{/companies/add-user/{id}(id=${company.id})}" class="btn">Thêm Người dùng</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="/" class="btn">Quay lại Trang chủ</a>
+</div>
+</body>
+</html>

@@ -17,7 +17,7 @@ public class AuthController {
     @Autowired private UserDemoService userService;
     @Autowired private CompanyService companyService;
 
-    // ===== REGISTER =====
+    // ----------- HIỂN THỊ FORM ĐĂNG KÝ -----------
     @GetMapping("/register")
     public String showRegister(Model model) {
         model.addAttribute("user", new UserDemo());
@@ -25,55 +25,61 @@ public class AuthController {
         return "auth/register";
     }
 
+    // ----------- XỬ LÝ ĐĂNG KÝ -----------
     @PostMapping("/register")
     public String register(@ModelAttribute UserDemo user,
                            @RequestParam String confirmPassword,
                            Model model, RedirectAttributes ra) {
 
+        // 1. Kiểm tra dữ liệu nhập hợp lệ
         if (user.getFirstName().isEmpty() || user.getLastName().isEmpty() ||
             user.getEmail().isEmpty() || user.getPassword().length() < 6 ||
             !user.getPassword().equals(confirmPassword)) {
-
             model.addAttribute("error", "Thông tin đăng ký không hợp lệ!");
             model.addAttribute("companies", companyService.getAllCompanies());
             return "auth/register";
         }
 
-        if (userService.getAllUsers().stream()
-                .anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
+        // 2. Kiểm tra email đã tồn tại chưa
+        if (userService.existsByEmail(user.getEmail())) {
             model.addAttribute("error", "Email đã tồn tại!");
             model.addAttribute("companies", companyService.getAllCompanies());
             return "auth/register";
         }
 
-        userService.saveUser(user);
+        // 3. Lưu người dùng mới
+        userService.saveUser(user); // Có thể mã hóa mật khẩu ở tầng service
         ra.addFlashAttribute("success", "Đăng ký thành công!");
         return "redirect:/auth/login";
     }
 
-    // ===== LOGIN =====
+    // ----------- HIỂN THỊ FORM ĐĂNG NHẬP -----------
     @GetMapping("/login")
-    public String showLogin() { return "auth/login"; }
+    public String showLogin() {
+        return "auth/login";
+    }
 
+    // ----------- XỬ LÝ ĐĂNG NHẬP -----------
     @PostMapping("/login")
     public String login(@RequestParam String email, @RequestParam String password,
                         HttpSession session, Model model, RedirectAttributes ra) {
 
-        UserDemo user = userService.getAllUsers().stream()
-                .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
-                .findFirst().orElse(null);
+        // 1. Xác thực người dùng
+        UserDemo user = userService.authenticate(email, password);
 
+        // 2. Nếu không đúng email hoặc password
         if (user == null) {
             model.addAttribute("error", "Sai email hoặc mật khẩu!");
             return "auth/login";
         }
 
+        // 3. Đúng thì lưu thông tin user vào session và chuyển đến dashboard
         session.setAttribute("currentUser", user);
         ra.addFlashAttribute("success", "Chào mừng " + user.getUsername());
         return "redirect:/auth/dashboard";
     }
 
-    // ===== DASHBOARD =====
+    // ----------- DASHBOARD SAU ĐĂNG NHẬP -----------
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model, RedirectAttributes ra) {
         UserDemo user = (UserDemo) session.getAttribute("currentUser");
@@ -87,7 +93,7 @@ public class AuthController {
         return "auth/dashboard";
     }
 
-    // ===== LOGOUT =====
+    // ----------- ĐĂNG XUẤT -----------
     @GetMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes ra) {
         session.invalidate();

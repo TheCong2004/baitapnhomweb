@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Đăng ký</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Đăng ký tài khoản</h1>
+
+      <!-- Thông báo lỗi -->
+      <div
+        th:if="${error}"
+        style="color: red; font-weight: bold"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${success}"
+        style="color: green; font-weight: bold"
+        th:text="${success}"
+      ></div>
+
+      <form th:action="@{/auth/register}" method="post" th:object="${user}">
+        <div>
+          <label for="firstName">Họ:</label>
+          <input type="text" id="firstName" th:field="*{firstName}" required />
+        </div>
+        <div>
+          <label for="lastName">Tên:</label>
+          <input type="text" id="lastName" th:field="*{lastName}" required />
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" id="email" th:field="*{email}" required />
+        </div>
+        <div>
+          <label for="password">Mật khẩu:</label>
+          <input
+            type="password"
+            id="password"
+            th:field="*{password}"
+            required
+          />
+        </div>
+        <div>
+          <label for="confirmPassword">Xác nhận mật khẩu:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            required
+          />
+        </div>
+
+        <!-- Chọn công ty -->
+        <div>
+          <label for="company">Công ty:</label>
+          <select id="company" th:field="*{company.id}">
+            <option value="">-- Không thuộc công ty --</option>
+            <option
+              th:each="company : ${companies}"
+              th:value="${company.id}"
+              th:text="${company.companyName}"
+            ></option>
+          </select>
+        </div>
+
+        <button type="submit">Đăng ký</button>
+        <a th:href="@{/auth/login}">Đã có tài khoản? Đăng nhập</a>
+      </form>
+    </div>
+  </body>
+</html>

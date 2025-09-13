@@ -49,4 +49,19 @@ public class UserDemoService {
     public void deleteUser(Long id) {
         userDemoRepository.deleteById(id);
     }
+
+    // ✅ Kiểm tra email đã tồn tại hay chưa
+    public boolean existsByEmail(String email) {
+        return userDemoRepository.findAll().stream()
+                .anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
+    }
+
+    // ✅ Xác thực đăng nhập (login)
+    public UserDemo authenticate(String email, String password) {
+        return userDemoRepository.findAll().stream()
+                .filter(u -> u.getEmail().equalsIgnoreCase(email)
+                        && u.getPassword().equals(password)) // TODO: nên mã hóa mật khẩu
+                .findFirst()
+                .orElse(null);
+    }
 }

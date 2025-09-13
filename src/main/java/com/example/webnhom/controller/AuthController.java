@@ -14,8 +14,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired private UserDemoService userService;
-    @Autowired private CompanyService companyService;
+    @Autowired
+    private UserDemoService userService;
+    @Autowired
+    private CompanyService companyService;
 
     // ----------- HIỂN THỊ FORM ĐĂNG KÝ -----------
     @GetMapping("/register")
@@ -28,13 +30,13 @@ public class AuthController {
     // ----------- XỬ LÝ ĐĂNG KÝ -----------
     @PostMapping("/register")
     public String register(@ModelAttribute UserDemo user,
-                           @RequestParam String confirmPassword,
-                           Model model, RedirectAttributes ra) {
+            @RequestParam String confirmPassword,
+            Model model, RedirectAttributes ra) {
 
         // 1. Kiểm tra dữ liệu nhập hợp lệ
         if (user.getFirstName().isEmpty() || user.getLastName().isEmpty() ||
-            user.getEmail().isEmpty() || user.getPassword().length() < 6 ||
-            !user.getPassword().equals(confirmPassword)) {
+                user.getEmail().isEmpty() || user.getPassword().length() < 6 ||
+                !user.getPassword().equals(confirmPassword)) {
             model.addAttribute("error", "Thông tin đăng ký không hợp lệ!");
             model.addAttribute("companies", companyService.getAllCompanies());
             return "auth/register";
@@ -62,7 +64,7 @@ public class AuthController {
     // ----------- XỬ LÝ ĐĂNG NHẬP -----------
     @PostMapping("/login")
     public String login(@RequestParam String email, @RequestParam String password,
-                        HttpSession session, Model model, RedirectAttributes ra) {
+            HttpSession session, Model model, RedirectAttributes ra) {
 
         // 1. Xác thực người dùng
         UserDemo user = userService.authenticate(email, password);
@@ -76,7 +78,7 @@ public class AuthController {
         // 3. Đúng thì lưu thông tin user vào session và chuyển đến dashboard
         session.setAttribute("currentUser", user);
         ra.addFlashAttribute("success", "Chào mừng " + user.getUsername());
-        return "redirect:/auth/dashboard";
+        return "redirect:/";
     }
 
     // ----------- DASHBOARD SAU ĐĂNG NHẬP -----------

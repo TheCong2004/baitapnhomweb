@@ -17,18 +17,19 @@
     <tr th:each="user : ${users}">
         <td th:text="${user.id}"></td>
         <td th:text="${user.email}"></td>
-        <td th:text="${user.fullName}"></td>
-
-        <!-- Nếu role null thì hiển thị USER -->
-        <td th:text="${user.role != null ? user.role.name : 'USER'}"></td>
-
+        <td th:text="${user.firstName + ' ' + user.lastName}"></td>
+        <td>
+            <span th:if="${#lists.isEmpty(user.roles)}">USER</span>
+            <span th:each="role, stat : ${user.roles}">
+                <span th:text="${role.name}"></span><span th:if="${!stat.last}">, </span>
+            </span>
+        </td>
         <td>
             <a th:href="@{'/admin/users/edit/' + ${user.id}}">Sửa</a> |
             <a th:href="@{'/admin/users/delete/' + ${user.id}}"
                onclick="return confirm('Xóa người dùng này?')">Xóa</a>
         </td>
     </tr>
-
 </table>
 </body>
 </html>
